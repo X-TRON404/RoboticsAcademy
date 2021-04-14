@@ -13,10 +13,11 @@ class HAL:
     IMG_HEIGHT = 240
     
     def __init__(self):
-        rospy.init_node("HAL")
+        # rospy.init_node("HAL")
     
         self.image = None
-        self.cat = DroneWrapper(name="rqt", ns="cat/")
+        self.cat = DroneWrapper(name="HAL", ns="cat/")
+        self.cat_img = DroneWrapper(name="rqt", ns="cat/")
 
     # Explicit initialization functions
     # Class method, so user can call it without instantiation
@@ -27,12 +28,12 @@ class HAL:
     
     # Get Image from ROS Driver Camera
     def get_frontal_image(self):
-        image = self.cat.get_frontal_image()
+        image = self.cat_img.get_frontal_image()
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image_rgb
 
     def get_ventral_image(self):
-        image = self.cat.get_ventral_image()
+        image = self.cat_img.get_ventral_image()
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image_rgb
 
