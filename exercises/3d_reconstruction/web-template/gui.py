@@ -16,7 +16,8 @@ class GUI:
     def __init__(self, host, hal):
         t = threading.Thread(target=self.run_server)
 
-        self.payload = {'img1': '', 'img2': '', 'pts': '', 'match': '', 'p_match': 'F'}
+        self.payload1 = {'img1': '', 'img2': '', 'p_match': 'F'}
+        self.payload2 = {'pts': '', 'match': ''}
         self.server = None
         self.client = None
 
@@ -74,7 +75,6 @@ class GUI:
         self.image_show_lock.acquire()
         self.image_to_be_shown_updated = False
         self.image_show_lock.release()
-        self.paint_matching = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111123456789011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
         return payload1, payload2
 
     # Function for student to call
@@ -113,31 +113,35 @@ class GUI:
     # Update the gui
     def update_gui(self):
         payload1, payload2 = self.payloadImage()
-        self.payload["img1"] = json.dumps(payload1)
-        self.payload["img2"] = json.dumps(payload2)
+        self.payload1["img1"] = json.dumps(payload1)
+        self.payload1["img2"] = json.dumps(payload2)
         length_point_send = len(self.point_to_send)
+
+        self.payload1["p_match"] = self.paint_matching
+
+        # Payload Image Message
+        message = "#gui" + json.dumps(self.payload1)
+        self.server.send_message(self.client, message)
+
+
+
 
         if (length_point_send != 0):
             if (length_point_send > 100):
-                self.payload["pts"] = json.dumps(self.point_to_send[0:100])
+                self.payload2["pts"] = json.dumps(self.point_to_send[0:100])
                 del self.point_to_send[0:100]
             else:
-                self.payload["pts"] = json.dumps(self.point_to_send)
+                self.payload2["pts"] = json.dumps(self.point_to_send)
                 del self.point_to_send[0:length_point_send]
         else:
-            self.payload["pts"] = json.dumps([])
+            self.payload2["pts"] = json.dumps([])
 
         length_matching_send = len(self.matching_to_send)
-        self.payload["match"] = json.dumps(self.matching_to_send)
+        self.payload2["match"] = json.dumps(self.matching_to_send)
         del self.matching_to_send[0:length_matching_send]
 
-        self.payload["p_match"] = self.paint_matching
-
-
         # Payload Point Message
-        message = "#gui" + json.dumps(self.payload)
-
-        print("PINTANDO LONGITUD: " + str(len(message)))
+        message = "#gup" + json.dumps(self.payload2)
         self.server.send_message(self.client, message)
 
     # Function to read the message from websocket

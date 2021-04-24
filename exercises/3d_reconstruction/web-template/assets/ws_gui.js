@@ -32,16 +32,16 @@ function declare_gui(){
     websocket_gui.onmessage = function(event){
         var operation = event.data.substring(0, 4);
         radiConect.contentWindow.postMessage('up', '*');
-        if(operation == "#gui"){
+        if(operation === "#gui") {
             // Parse the entire Object
 
-            var data = JSON.parse(event.data.substring(4, ));
+            var data = JSON.parse(event.data.substring(4,));
             // Parse the Image Data
 
             image_data1 = JSON.parse(data.img1)
             source1 = decode_utf8(image_data1.img)
 
-            if(source1 !== ""){
+            if (source1 !== "") {
                 image1.src = "data:image1/jpeg;base64," + source1;
                 update_image();
             }
@@ -49,27 +49,27 @@ function declare_gui(){
             image_data2 = JSON.parse(data.img2)
             source2 = decode_utf8(image_data2.img)
 
-            if(source2 !== ""){
+            if (source2 !== "") {
                 image2.src = "data:image2/jpeg;base64," + source2;
                 update_image();
-            }
-
-            var point = JSON.parse(data.pts);
-            if(point != "")
-            {
-                paintPoints(point);
-            }
-            var matching = JSON.parse(data.match);
-
-            if(matching != "")
-            {
-                SetMatching(matching);
             }
             paint_matching = data.p_match;
             // Send the Acknowledgment Message
             websocket_gui.send("#ack");
 
-        }else if(operation == "#res"){
+        }else if (operation === "#gup"){
+            var data = JSON.parse(event.data.substring(4,));
+            var point = JSON.parse(data.pts);
+            if (point != "") {
+                paintPoints(point);
+            }
+            var matching = JSON.parse(data.match);
+
+            if (matching != "") {
+                SetMatching(matching);
+            }
+            websocket_gui.send("#ack");
+        }else if(operation === "#res"){
             // Set the value of command
             reset_scene3d();
             reset_matching();
