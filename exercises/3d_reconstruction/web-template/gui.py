@@ -136,6 +136,8 @@ class GUI:
 
         # Payload Point Message
         message = "#gui" + json.dumps(self.payload)
+
+        print("PINTANDO LONGITUD: " + str(len(message)))
         self.server.send_message(self.client, message)
 
     # Function to read the message from websocket
