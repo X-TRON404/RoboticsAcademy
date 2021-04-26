@@ -182,6 +182,9 @@ async def hello(websocket, path):
             host_thread = DockerThread(host_cmd)
             host_thread.start()
 
+            # Start the exercise
+            start_exercise(data["exercise"])
+
             if not ("color_filter" in data["exercise"]):
                 roslaunch_cmd = ros_instructions(data["exercise"])
                 roslaunch_thread = DockerThread(roslaunch_cmd)
