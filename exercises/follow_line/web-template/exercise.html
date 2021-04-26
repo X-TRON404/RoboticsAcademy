@@ -103,19 +103,25 @@ while True:
 
     <iframe id="console" style="display:none;" src="" width="100%" height="50%"></iframe>
     <iframe id="iframeGzweb" style="display:none;" src="" width="100%" height="50%" ></iframe>
-      <script type="text/javascript">
+      <script type="text/javascript" crossorigin="use-credentials">
       function changeconsole(){
         document.getElementById("console").setAttribute("src", "http://" + websocket_address + ":1108/vnc.html?resize=remote&autoconnect=true");
         var console_display = document.getElementById('console').style.display
         console.log(console_display)
         if (console_display == "none") {
           document.getElementById('console').style.display = 'block';
+
+          setTimeout(function(){
+            console.log("Scroll");
+            document.getElementById('console').contentWindow.scrollTop = 200;
+          }, 3000);
+
         } else{
           document.getElementById('console').style.display = 'none';
         }
       }
       function changegzweb(){
-        document.getElementById("iframeGzweb").setAttribute("src", "http://" + websocket_address + ":6080/vnc.html?resize=remote&autoconnect=true");
+        document.getElementById("iframeGzweb").setAttribute("src", "http://" + websocket_address + ":1108/vnc.html?resize=remote&autoconnect=true");
         var display = document.getElementById('iframeGzweb').style.display
         console.log(display)
         if (display == "none") {
@@ -136,13 +142,13 @@ while True:
 </script>
     </body>
 
-  <script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-  <script src="../../assets/js/utils.js"></script>
-  <script src="assets/websocket_address.js" type="text/javascript" charset="utf-8"></script>
-  <script src="assets/launcher.js" type="text/javascript" charset="utf-8"></script>
-  <script src="assets/ws_code.js" type="text/javascript" charset="utf-8"></script>
-  <script src="assets/ws_gui.js" type="text/javascript" charset="utf-8"></script>
-  <script src="assets/local_functions.js" type="text/javascript" charset="utf-8"></script>
-  <script src="assets/birds_eye.js" type="text/javascript" charset="utf-8"></script>
+	<script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../assets/js/utils.js"></script>
+	<script src="assets/websocket_address.js" type="text/javascript" charset="utf-8"></script>
+  	<script src="assets/launcher.js" type="text/javascript" charset="utf-8"></script>
+	<script src="assets/ws_code.js" type="text/javascript" charset="utf-8"></script>
+  	<script src="assets/ws_gui.js" type="text/javascript" charset="utf-8"></script>
+	<script src="assets/local_functions.js" type="text/javascript" charset="utf-8"></script>
+  	<script src="assets/birds_eye.js" type="text/javascript" charset="utf-8"></script>
 
 </html>

@@ -95,20 +95,20 @@ def start_gzclient(exercise, width, height):
 def start_console(width, height):
     # Write display config and start the console
     width = int(width) / 10; height = int(height) / 18
-    console_cmd = f"export DISPLAY=:1;"
-    console_cmd += f"xterm -geometry {int(width)}x{int(height)} -fa 'Monospace' -fs 10 -bg black -fg white"
+    console_cmd = f"xterm -geometry {int(width)}x{int(height)}+7000+3000 -fa 'Monospace' -fs 10 -bg black -fg white"
 
     console_thread = DockerThread(console_cmd)
     console_thread.start()
 
-def start_vnc(display, internal_port, external_port):
+def start_vnc_server(display):
     # Start VNC server without password, forever running in background
-    x11vnc_cmd = f"x11vnc -display {display} -nopw -forever -xkb -bg -rfbport {internal_port}"
+    x11vnc_cmd = f"x11vnc -display {display} -nopw -shared -forever -xkb -bg -rfbport 5900"
     x11vnc_thread = DockerThread(x11vnc_cmd)
     x11vnc_thread.start()
 
+def start_vnc_client(display, external_port):
     # Start noVNC with default port 6080 listening to VNC server on 5900
-    novnc_cmd = f"/noVNC/utils/launch.sh --listen {external_port} --vnc localhost:{internal_port}"
+    novnc_cmd = f"/noVNC/utils/launch.sh --listen {external_port} --vnc localhost:5900"
     novnc_thread = DockerThread(novnc_cmd)
     novnc_thread.start()
 
@@ -148,7 +148,7 @@ async def kill_simulation():
     cmd_novnc = "pkill -9 -f launch.sh"
     os.popen(cmd_novnc)
     os.popen(cmd_novnc)
-    cmd_console = "pkill -9 -f tilda"
+    cmd_console = "pkill -9 -f xterm"
     os.popen(cmd_console)
     """cmd_py = "pkill -9 -f python"
     os.popen(cmd_py)"""
@@ -178,13 +178,9 @@ async def hello(websocket, path):
             xserver_thread = DockerThread(xserver_cmd)
             xserver_thread.start()
 
-            # X Server for Console
-            console_xserver_cmd = "/usr/bin/Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile ./console_xdummy.log -config ./xorg.conf :1"
-            console_xserver_thread = DockerThread(console_xserver_cmd)
-            console_xserver_thread.start()
-
-            # Start the exercise
-            start_exercise(data["exercise"])
+            host_cmd = instructions[data["exercise"]]["instructions_host"]
+            host_thread = DockerThread(host_cmd)
+            host_thread.start()
 
             if not ("color_filter" in data["exercise"]):
                 roslaunch_cmd = ros_instructions(data["exercise"])
@@ -193,9 +189,11 @@ async def hello(websocket, path):
                 time.sleep(5)
 
                 if (data["exercise"] in GZCLIENT_EXERCISES):
-                    # Start x11vnc servers
-                    start_vnc(DISPLAY, 5900, 6080)
-                    start_vnc(":1", 5901, 1108)
+                    # Start x11vnc server
+                    start_vnc_server(DISPLAY)
+                    # Start novnc client
+                    # start_vnc_client(DISPLAY, 6080)
+                    start_vnc_client(DISPLAY, 1108)
 
                     # Start gazebo client
                     width = data.get("width", 1920)
