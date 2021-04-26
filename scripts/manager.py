@@ -178,10 +178,6 @@ async def hello(websocket, path):
             xserver_thread = DockerThread(xserver_cmd)
             xserver_thread.start()
 
-            host_cmd = instructions[data["exercise"]]["instructions_host"]
-            host_thread = DockerThread(host_cmd)
-            host_thread.start()
-
             # Start the exercise
             start_exercise(data["exercise"])
 
