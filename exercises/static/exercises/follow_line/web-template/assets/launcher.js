@@ -1,3 +1,6 @@
+var ws_manager;
+var gazeboOn = false;
+
 function startSim() {
     ws_manager = new WebSocket("ws://" + websocket_address + ":8765/");
     exercise = "follow_line"
@@ -11,11 +14,22 @@ function startSim() {
 
     ws_manager.onmessage = function (event) {
         // console.log(event.data);
-        ws_manager.send(JSON.stringify({"command" : "Pong"}));
+        ws_manager.send(JSON.stringify({"command" : "Pong"}));   
+     
     }
 
     setTimeout(function () {
         declare_code(websocket_address);
         declare_gui(websocket_address);
     }, 20000);
+}
+
+function toggleGazebo() {
+    if (gazeboOn) {
+        ws_manager.send(JSON.stringify({"command" : "stopgz"}));
+        gazeboOn = false;
+    } else {
+        ws_manager.send(JSON.stringify({"command" : "startgz"}));
+        gazeboOn = true;
+    }
 }

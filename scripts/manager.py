@@ -93,6 +93,11 @@ class Commands:
         gzclient_thread = DockerThread(gzclient_cmd)
         gzclient_thread.start()
 
+    # Function to stop gzclient
+    def stop_gzclient(self):
+        cmd_stop = "pkill -9 -f gzclient"
+        os.popen(cmd_stop)
+
     # Function to start the console
     def start_console(self, width, height):
         # Write display config and start the console
@@ -210,6 +215,10 @@ class Manager:
         self.host = "0.0.0.0"
         self.commands = Commands()
 
+        self.exercise = None
+        self.height = None
+        self.width = None
+
     # Function to handle all the requests
     async def handle(self, websocket, path):
         self.client = websocket
@@ -219,12 +228,13 @@ class Manager:
             command = data["command"]
 
             if command == "open":
-                width = data.get("width", 1920)
-                height = data.get("height", 1080)
+                self.width = data.get("width", 1920)
+                self.height = data.get("height", 1080)
+                self.exercise = data["exercise"]
                 if not (ACCELERATION_ENABLED):
-                    self.open_simulation(data["exercise"], width, height)
+                    self.open_simulation(self.exercise, self.width, self.height)
                 else:
-                    self.open_accelerated_simulation(data["exercise"], width, height)
+                    self.open_accelerated_simulation(self.exercise, self.width, self.height)
             elif command == "resume":
                 self.resume_simulation()
             elif command == "stop":
@@ -233,6 +243,10 @@ class Manager:
                 self.start_simulation()
             elif command == "reset":
                 self.reset_simulation()
+            elif command == "stopgz":
+                self.stop_gz()
+            elif command == "startgz":
+                self.start_gz()
             elif command == "Pong":
                 await websocket.send("Ping")
             else:
@@ -260,8 +274,7 @@ class Manager:
             self.commands.start_vnc(":0", 5900, 6080)
             self.commands.start_vnc(":1", 5901, 1108)
 
-            # Start gazebo client
-            self.commands.start_gzclient(exercise, width, height)
+            # Start console
             self.commands.start_console(width, height)
         else:
             self.commands.start_vnc(":1", 5900, 1108)
@@ -282,9 +295,7 @@ class Manager:
         if not ("color_filter" in exercise):
             self.commands.start_vnc(":1", 5901, 1108)
 
-            # Start gazebo client
-            time.sleep(2)
-            self.commands.start_gzclient(exercise, width, height)
+            # Start console
             time.sleep(2)
             self.commands.start_console(width, height)
         else:
@@ -310,6 +321,16 @@ class Manager:
     def reset_simulation(self):
         print("Reset Simulation")
         self.commands.reset_physics()
+
+    # Function to start gz client
+    def start_gz(self):
+        print("Starting Gzclient")
+        self.commands.start_gzclient(self.exercise, self.width, self.height)
+
+    # Function to stop gz client
+    def stop_gz(self):
+        print("Closing Gzclient")
+        self.commands.stop_gzclient()
 
     # Function to kill simulation
     async def kill_simulation(self):
